@@ -80,6 +80,12 @@ class TestCart:
         cart.remove_product(product)
         assert product not in cart.products
 
+    def test_add_and_remove_same_quantity_in_cart(self, product, cart):
+        cart.add_product(product, 5)
+        assert cart.products[product] == 5
+        cart.remove_product(product, 5)
+        assert product not in cart.products
+
     def test_remove_more_than_in_cart(self, product, cart):
         cart.add_product(product, 3)
         cart.remove_product(product, 5)
