@@ -12,6 +12,11 @@ def product():
 
 
 @pytest.fixture
+def product_2():
+    return Product("phone", 50000, "This is a phone", 10)
+
+
+@pytest.fixture
 def cart():
     return Cart()
 
@@ -116,3 +121,28 @@ class TestCart:
         cart.add_product(product, 1001)
         with pytest.raises(ValueError, match = "Товара book не хватает на складе"):
             cart.buy()
+
+    def test_remove_one_product_does_not_affect_other(self, product, product_2, cart):
+        cart.add_product(product, 2)
+        cart.add_product(product_2, 1)
+        cart.remove_product(product, 2)
+        assert product not in cart.products
+        assert product_2 in cart.products
+
+    @pytest.mark.parametrize("buy_count_product, buy_count_product_2", [
+        (1, 1),
+        (1000, 10)
+    ])
+    def test_total_price_multiple_products(self, product, product_2, cart, buy_count_product, buy_count_product_2):
+        cart.add_product(product, buy_count_product)
+        cart.add_product(product_2, buy_count_product_2)
+        expected_price = (product.price * buy_count_product) + (product_2.price * buy_count_product_2)
+        assert cart.get_total_price() == expected_price
+
+    def test_buy_cart_not_enough_one_product(self, product, product_2, cart):
+        cart.add_product(product, 100)
+        cart.add_product(product_2, 11)
+        with pytest.raises(ValueError, match = "Товара phone не хватает на складе"):
+            cart.buy()
+
+
